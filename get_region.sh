@@ -29,6 +29,3 @@ echo "You selected: ${region_name} (Region: ${selected_region})"
 break
 done
 }
-
-#select_region
-#echo  ${selected_region}
