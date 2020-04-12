@@ -24,8 +24,8 @@ PS3="Select region: "
 get_regions
 select region_name in ${region_names[@]}
 do 
-selected_region=${region_ids[${REPLY}-1]}
-echo "You selected: ${region_name} (Region: ${selected_region})"
-break
+	selected_region=${region_ids[${REPLY}-1]}
+	echo "You selected: ${region_name} (Region: ${selected_region})"
+	break
 done
 }

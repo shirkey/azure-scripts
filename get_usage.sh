@@ -13,6 +13,7 @@ function get_vm_usage()
 	else
 	    echo "Retrieving VM usage and limits for ${selected_region} from cache (${vm_usage_file})"
 	fi
-	echo $(jq -s '.[][] | { "id": .name.value, "name": .localName, "limit": (.limit | tonumber), "used": (.currentValue | tonumber), "capacity": ((.limit | tonumber) - (.currentValue | tonumber)) }' ${vm_usage_file})
+	echo $(jq -s '.[][] | { "id": .name.value, "name": .localName, "limit": (.limit | tonumber), "usage": (.currentValue | tonumber), "capacity": ((.limit | tonumber) - (.currentValue | tonumber)) } | {"id": .id, "name": .name, "limit": .limit, "capacity": .capacity, "usage": .usage, "usagePercent": ( if .limit > 0 then 100*(.usage / .limit) else 0 end)}' ${vm_usage_file})
 }
+
 
