@@ -3,6 +3,7 @@ declare OLDPATH=$PATH
 declare -a tests=(
 	test_subscription.sh 
 	test_region.sh
+	test_usage.sh
 )
 
 function set_path()
