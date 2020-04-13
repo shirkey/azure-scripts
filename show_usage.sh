@@ -16,6 +16,16 @@ echo -e ${header}
 select_region
 header+=" - Region: ${selected_region}\n"
 
+# display usage
+clear
+echo -e $header
+# display
+
+# VM type name / in use / limit / capacity / capacity%
+# vm_name[vm_id] vm_in_use[vm_id] vm_limit[vm_id] vm_avail[vm_id] vm_avail_per[vm_id]
+
+exit
+
 while :
 do
 	clear
