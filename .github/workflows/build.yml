@@ -26,5 +26,5 @@ jobs:
     - name: Run tests
       run: |
         echo "Run tests",
-        run_tests.sh,
+        ./run_tests.sh,
         echo "Tests completed"
