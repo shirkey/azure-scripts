@@ -3,7 +3,6 @@ declare -a region_names
 declare -a region_ids
 
 declare region_file="/tmp/regions.json"
-declare selected_region
 
 function get_regions()
 {
@@ -18,6 +17,7 @@ region_names=($(jq -s '[ .[][].displayName ] | join(",")' ${region_file} | tr -d
 region_ids=($(jq -s '[ .[][].name ] | join(",")' ${region_file} | tr -d "\""))
 }
 
+declare selected_region
 function select_region() 
 {
 PS3="Select region: "

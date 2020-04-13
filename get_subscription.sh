@@ -4,7 +4,6 @@ declare -a sub_names
 declare -a sub_ids
 
 declare subscription_file="/tmp/subscriptions.json"
-declare selected_subscription
 
 function get_subscriptions()
 {
@@ -19,6 +18,7 @@ sub_names=($(jq -s '[ .[][].name ] | join(",")' ${subscription_file} | tr -d "\"
 sub_ids=($(jq -s '[ .[][].id ] | join(",")' ${subscription_file} | tr -d "\"" ))
 }
 
+declare selected_subscription
 function select_subscription() 
 {
 PS3="Select subscription: "
