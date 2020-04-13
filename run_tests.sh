@@ -20,7 +20,7 @@ set_path
 for idx in ${!tests[@]}
 do
 	cmd="${tests[${idx}]}"
-	echo "***********************************************"
+	echo "********************************************"
 	echo "Running ${cmd}"
 	${cmd}
 done
