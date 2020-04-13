@@ -19,9 +19,10 @@ function get_vm_usage()
 {
         local selected_region="${1:?Please provide a region name as argument}"
         local vm_usage_file="/tmp/usage_${selected_region}_vm.json"
+	local vm_usage_file_ext="/tmp/usage_${selected_region}_vm_ext.json"
 
 	load_vm_data ${selected_region} 
-	echo $(jq -s '.[][] | { "id": .name.value, "name": .localName, "limit": (.limit | tonumber), "usage": (.currentValue | tonumber), "capacity": ((.limit | tonumber) - (.currentValue | tonumber)) } | {"id": .id, "name": .name, "limit": .limit, "capacity": .capacity, "usage": .usage, "usagePercent": ( if .limit > 0 then 100*(.usage / .limit) else 0 end)}' ${vm_usage_file})
+	$(jq -s '.[][] | { "id": .name.value, "name": .localName, "limit": (.limit | tonumber), "usage": (.currentValue | tonumber), "capacity": ((.limit | tonumber) - (.currentValue | tonumber)) } | {"id": .id, "name": .name, "limit": .limit, "capacity": .capacity, "usage": .usage, "usagePercent": ( if .limit > 0 then 100*(.usage / .limit) else 0 end)}' ${vm_usage_file} > ${vm_usage_file_ext})
 }
 
 declare selected_vm
@@ -30,7 +31,7 @@ function select_vm_type()
 { 
         local selected_region="${1:?Please provide a region name as argument}"
         local vm_usage_file="/tmp/usage_${selected_region}_vm.json"
-	load_vm_data ${selected_region} 
+	get_vm_usage ${selected_region} 
 
 	#IFS=","
 	declare -a vm_names=($(jq -s '.[][] | select(.localName | contains("Family"))? | .localName' ${vm_usage_file} | tr -d "\"" | tr "\r\n" ","))
@@ -43,4 +44,17 @@ function select_vm_type()
 		echo "You selected: ${vm_name} (VM ID: ${selected_vm})"
 		break
 	done
+}
+
+function get_vm_usage_by_region_and_id()
+{
+        local selected_region="${1:?Please provide a region name as argument}"
+	local selected_vm="${2:?Please provide the vm type id}"
+	local vm_usage_file_ext="/tmp/usage_${selected_region}_vm_ext.json"
+	get_vm_usage ${selected_region}
+
+	filter=".[] | select(.id | contains(\"${selected_vm}\"))?"
+	echo ${filter}
+	echo $(jq -s ${filter} ${vm_usage_file_ext})
+
 }

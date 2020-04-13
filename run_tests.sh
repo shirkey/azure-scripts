@@ -8,7 +8,7 @@ declare -a tests=(
 
 function set_path()
 {
-	PATH=$OLDPATH:${PWD}/tests
+	PATH=${OLDPATH}:${PWD}/tests:${PWD}/src
 }
 
 function reset_path()
