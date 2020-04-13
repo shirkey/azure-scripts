@@ -42,6 +42,7 @@ function select_vm_type()
 	do
 		selected_vm=${vm_ids[${REPLY}-1]}
 		echo "You selected: ${vm_name} (VM ID: ${selected_vm})"
+		get_vm_usage_by_region_and_id ${selected_region} ${selected_vm}
 		break
 	done
 }
@@ -54,7 +55,6 @@ function get_vm_usage_by_region_and_id()
 	get_vm_usage ${selected_region}
 
 	filter=".[] | select(.id | contains(\"${selected_vm}\"))?"
-	echo ${filter}
+	echo "Usage information for ${selected_vm} in region ${selected_region}"
 	echo $(jq -s ${filter} ${vm_usage_file_ext})
-
 }
