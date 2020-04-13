@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+declare -a vm_ids
+declare -A vm_name
+declare -A vm_limit
+declare -A vm_capacity
+declare -A vm_usage
+declare -A vm_usage_percent
+
 function load_vm_data()
 {
 	IFS=","
@@ -23,6 +30,22 @@ function get_vm_usage()
 
 	load_vm_data ${selected_region} 
 	$(jq -s '.[][] | { "id": .name.value, "name": .localName, "limit": (.limit | tonumber), "usage": (.currentValue | tonumber), "capacity": ((.limit | tonumber) - (.currentValue | tonumber)) } | {"id": .id, "name": .name, "limit": .limit, "capacity": .capacity, "usage": .usage, "usagePercent": ( if .limit > 0 then 100*(.usage / .limit) else 0 end)}' ${vm_usage_file} > ${vm_usage_file_ext})
+
+	vm_ids=($(jq -s '.[][] | select(.localName | contains("Family"))? | .name.value' ${vm_usage_file} | tr -d "\"" | tr "\r\n" "," ))
+	declare -a vm_names=($(jq -s '.[][] | select(.localName | contains("Family"))? | .localName' ${vm_usage_file} | tr -d "\"" | tr "\r\n" ","))
+	declare -a vm_limits=($(jq -s '.[][] | select(.localName | contains("Family"))? | .limit' ${vm_usage_file} | tr -d "\"" | tr "\r\n" "," ))
+	declare -a vm_capacities=($(jq -s '.[] | select(.id | contains("Family"))? | .capacity' ${vm_usage_file_ext} | tr -d "\"" | tr "\r\n" ","))
+	declare -a vm_usages=($(jq -s '.[] | select(.id | contains("Family"))? | .usage' ${vm_usage_file_ext} | tr -d "\"" | tr "\r\n" ","))
+	declare -a vm_usages_percent=($(jq -s '.[] | select(.id | contains("Family"))? | .usagePercent' ${vm_usage_file_ext} | tr -d "\"" | tr "\r\n" ","))
+	
+	for idx in ${!vm_ids[@]}
+	do 
+		vm_name[${vm_ids[${idx}]}]="${vm_names[${idx}]}"
+		vm_limit[${vm_ids[${idx}]}]="${vm_limits[${idx}]}"
+		vm_capacity[${vm_ids[${idx}]}]="${vm_capacities[${idx}]}"
+		vm_usage[${vm_ids[${idx}]}]="${vm_usages[${idx}]}"
+		vm_usage_percent[${vm_ids[${idx}]}]="${vm_usages_percent[${idx}]}"
+	done
 }
 
 declare selected_vm
@@ -57,4 +80,38 @@ function get_vm_usage_by_region_and_id()
 	filter=".[] | select(.id | contains(\"${selected_vm}\"))?"
 	echo "Usage information for ${selected_vm} in region ${selected_region}"
 	echo $(jq -s ${filter} ${vm_usage_file_ext})
+	echo "Usage information (from associative array):"
+	echo "Name: ${vm_name[${selected_vm}]}"
+	echo "Limit: ${vm_limit[${selected_vm}]}"
+	echo "Capacity: ${vm_capacity[${selected_vm}]}"
+	echo "Usage: ${vm_usage[${selected_vm}]}"
+	echo "Usage Percent: ${vm_usage_percent[${selected_vm}]}"
+}
+
+function show_vm_usage_by_region()
+{
+        local selected_region="${1:?Please provide a region name as argument}"
+	get_vm_usage ${selected_region}
+
+	IFS=$'\n' sorted=($(sort <<<"${vm_ids[*]}"))
+	for vmid in ${sorted[@]}
+	do
+		#echo ${vmid}
+		vmname=${vm_name[${vmid}]}
+		vmlimit=${vm_limit[${vmid}]}
+		if [ $vmlimit -gt 0 ]; then
+			vmusagepercent=${vm_usage_percent[${vmid}]}
+			if [ ${vmusagepercent} -lt 80 ]; then
+				vmname="\e[1;32m${vmname}\e[0m"
+			else
+				vmname="\e[1;31m${vmname}\e[0m"
+			fi
+			vmusage=${vm_usage[${vmid}]}
+			vmcapacity=${vm_capacity[${vmid}]}
+		else
+			vmname="\e[1;30m${vmname}\e[0m"
+			vmusagepercent="n/a"
+		fi
+		printf "%50b %3b%% (%5b of %5b)\n" $vmname $vmusagepercent ${vmusage} ${vmcapacity}
+	done
 }

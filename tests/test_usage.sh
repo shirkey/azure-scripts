@@ -10,8 +10,11 @@ echo "Test function: get_vm_usage"
 get_vm_usage ${selected_region}
 
 echo "Test function: select_vm_type"
-select_vm_type ${selected_region} <<< 2
+select_vm_type ${selected_region} <<< 1 
 echo "${selected_vm} returned from function"
 
 echo "Test function: get_vm_usage_by_region_and_id"
 get_vm_usage_by_region_and_id ${selected_region} ${selected_vm}
+
+echo "Test funciton: show_vm_usage_by_region"
+show_vm_usage_by_region ${selected_region}
