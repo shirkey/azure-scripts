@@ -102,16 +102,18 @@ function show_vm_usage_by_region()
 		if [ $vmlimit -gt 0 ]; then
 			vmusagepercent=${vm_usage_percent[${vmid}]}
 			if [ ${vmusagepercent} -lt 80 ]; then
-				vmname="\e[1;32m${vmname}\e[0m"
+				vmname="\e[1;32m${vmname}"
 			else
-				vmname="\e[1;31m${vmname}\e[0m"
+				vmname="\e[1;31m${vmname}"
 			fi
 			vmusage=${vm_usage[${vmid}]}
 			vmcapacity=${vm_capacity[${vmid}]}
 		else
-			vmname="\e[1;30m${vmname}\e[0m"
+			vmname="\e[1;30m${vmname}"
 			vmusagepercent="n/a"
+			vmcapacity="n/a"
+			vmusage="n/a"
 		fi
-		printf "%50b %3b%% (%5b of %5b)\n" $vmname $vmusagepercent ${vmusage} ${vmcapacity}
+		printf "%50b: %3b%% (%4b of %4b)\e[0m\n" $vmname $vmusagepercent ${vmusage} ${vmlimit}
 	done
 }
