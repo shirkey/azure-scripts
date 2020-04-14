@@ -24,4 +24,4 @@ jobs:
 
     # Runs a set of commands using the runners shell
     - name: Build run.sh
-      run: cd ${GITHUB_WORKSPACE} && make test
+      run: cd ${GITHUB_WORKSPACE} && make
